@@ -16,6 +16,7 @@ type Writer struct {
 	tlsConfig *tls.Config
 	framer    Framer
 	formatter Formatter
+	appName string
 
 	//non-nil if custom dialer set, used in getDialer
 	customDial DialFunc
@@ -72,6 +73,11 @@ func (w *Writer) SetFormatter(f Formatter) {
 // SetFramer changes the framer function for subsequent messages.
 func (w *Writer) SetFramer(f Framer) {
 	w.framer = f
+}
+
+// SetAppName changes
+func (w *Writer) SetAppName(appName string) {
+	w.appName = appName
 }
 
 // SetHostname changes the hostname for syslog messages if needed.
@@ -190,7 +196,7 @@ func (w *Writer) write(conn serverConn, p Priority, msg string) (int, error) {
 		msg += "\n"
 	}
 
-	err := conn.writeString(w.framer, w.formatter, p, w.hostname, w.tag, msg)
+	err := conn.writeString(w.framer, w.formatter, p, w.hostname, w.tag, msg, w.appName)
 	if err != nil {
 		return 0, err
 	}
