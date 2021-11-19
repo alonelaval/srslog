@@ -2,7 +2,9 @@ package srslog
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net"
+	"strconv"
 )
 
 // dialerFunctionWrapper is a simple object that consists of a dialer function
@@ -38,6 +40,7 @@ func (w *Writer) getDialer() dialerFunctionWrapper {
 		"":        dialerFunctionWrapper{"unixDialer", w.unixDialer},
 		"tcp+tls": dialerFunctionWrapper{"tlsDialer", w.tlsDialer},
 		"custom":  dialerFunctionWrapper{"customDialer", w.customDialer},
+		"upd":        dialerFunctionWrapper{"udpDialer", w.updDialer},
 	}
 	dialer, ok := dialers[w.network]
 	if !ok {
@@ -70,6 +73,39 @@ func (w *Writer) tlsDialer() (serverConn, string, error) {
 		}
 	}
 	return sc, hostname, err
+}
+
+// tlsDialer connects to TLS over TCP, and is used for the "tcp+tls" network
+// type.
+func (w *Writer) updDialer() (serverConn, string, error) {
+	//c, err := tls.Dial("tcp", w.raddr, w.tlsConfig)
+
+	var c    *net.UDPConn
+	if host, port, err := net.SplitHostPort(w.raddr); err == nil {
+		p, err := strconv.Atoi(port)
+		if err != nil {
+			return nil,"",fmt.Errorf("error converting port number to int for target %s: %s", w.raddr, err)
+		}
+		addr := &net.UDPAddr{
+			Port: p,
+			IP:   net.ParseIP(host),
+		}
+		c, err = net.DialUDP("udp", nil, addr)
+		if err != nil {
+			return nil,"", fmt.Errorf("error connecting to target %s: %s", w.raddr, err)
+		}
+		var sc serverConn
+		c.SetWriteBuffer(65535)
+		hostname := w.hostname
+		if err == nil {
+			sc = &netConn{conn: c}
+			if hostname == "" {
+				hostname = c.LocalAddr().String()
+			}
+		}
+		return sc, hostname, err
+	}
+	return nil, w.hostname,  fmt.Errorf("error connecting!")
 }
 
 // basicDialer is the most common dialer for syslog, and supports both TCP and

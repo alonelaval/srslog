@@ -80,6 +80,10 @@ func (w *Writer) SetAppName(appName string) {
 	w.appName = appName
 }
 
+// SetNetWork changes
+func (w *Writer) SetNetWork(network string) {
+	w.network = network
+}
 // SetHostname changes the hostname for syslog messages if needed.
 func (w *Writer) SetHostname(hostname string) {
 	w.hostname = hostname
