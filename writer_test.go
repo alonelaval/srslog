@@ -89,7 +89,7 @@ func TestWriteFormatters(t *testing.T) {
 			t.Errorf("failed to connect: %v", err)
 		}
 		defer w.Close()
-
+		w.SetNetWork("test")
 		w.SetFormatter(test.f)
 
 		f := test.f
