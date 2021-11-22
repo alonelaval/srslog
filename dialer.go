@@ -40,7 +40,7 @@ func (w *Writer) getDialer() dialerFunctionWrapper {
 		"":        dialerFunctionWrapper{"unixDialer", w.unixDialer},
 		"tcp+tls": dialerFunctionWrapper{"tlsDialer", w.tlsDialer},
 		"custom":  dialerFunctionWrapper{"customDialer", w.customDialer},
-		"upd":        dialerFunctionWrapper{"udpDialer", w.updDialer},
+		"udp":        dialerFunctionWrapper{"udpDialer", w.updDialer},
 	}
 	dialer, ok := dialers[w.network]
 	if !ok {
