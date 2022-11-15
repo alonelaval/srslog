@@ -2,7 +2,6 @@ package srslog
 
 import (
 	"crypto/tls"
-	"strings"
 	"sync"
 )
 
@@ -196,9 +195,9 @@ func (w *Writer) writeAndRetryWithPriority(p Priority, s string) (int, error) {
 // message based on the current Formatter and Framer.
 func (w *Writer) write(conn serverConn, p Priority, msg string) (int, error) {
 	// ensure it ends in a \n
-	if !strings.HasSuffix(msg, "\n") {
-		msg += "\n"
-	}
+	//if !strings.HasSuffix(msg, "\n") {
+	//	msg += "\n"
+	//}
 
 	err := conn.writeString(w.framer, w.formatter, p, w.hostname, w.tag, msg, w.appName)
 	if err != nil {
